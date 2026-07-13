@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "bookstore-drf"
+version = "0.1.0"
+description = "Projeto bookstore com Django REST Framework"
+authors = ["Rick-Dev-Br"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^5.2.0"
+djangorestframework = "^3.17.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-django = "^4.0"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
