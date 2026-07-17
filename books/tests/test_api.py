@@ -22,4 +22,27 @@ def test_books_api_lists_books(client):
     response = client.get("/api/books/")
 
     assert response.status_code == 200
-    assert response.json()[0]["title"] == "Clean Code"
+    data = response.json()
+    assert data["count"] == 1
+    assert data["next"] is None
+    assert data["previous"] is None
+    assert data["results"][0]["title"] == "Clean Code"
+
+
+@pytest.mark.django_db
+def test_books_api_limits_results_to_page_size(client):
+    for index in range(6):
+        Book.objects.create(
+            title=f"Livro {index}",
+            author="Autor Teste",
+            published_year=2020,
+        )
+
+    response = client.get("/api/books/")
+
+    data = response.json()
+    assert response.status_code == 200
+    assert data["count"] == 6
+    assert data["next"] is not None
+    assert data["previous"] is None
+    assert len(data["results"]) == 5
