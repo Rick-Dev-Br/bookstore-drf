@@ -23,20 +23,22 @@ def index(request):
 
 
 class BookViewSet(ModelViewSet):
-    queryset = Book.objects.all()
+    queryset = Book.objects.all().order_by("id")
     serializer_class = BookSerializer
 
 
 class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by("id")
     serializer_class = CategorySerializer
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.select_related("category")
+    queryset = Product.objects.select_related("category").order_by("id")
     serializer_class = ProductSerializer
 
 
 class OrderViewSet(ModelViewSet):
-    queryset = Order.objects.select_related("product", "product__category")
+    queryset = Order.objects.select_related("product", "product__category").order_by(
+        "id"
+    )
     serializer_class = OrderSerializer
