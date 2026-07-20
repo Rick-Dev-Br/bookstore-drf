@@ -15,6 +15,13 @@ poetry run python manage.py runserver
 ```text
 /
 /api/books/
+/api-token-auth/
+```
+
+Para acessar `/api/orders/`, envie o token no header:
+
+```text
+Authorization: Token seu_token
 ```
 
 ## Testes

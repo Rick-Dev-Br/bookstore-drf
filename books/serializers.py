@@ -70,6 +70,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "id",
             "product",
             "product_detail",
+            "user",
             "customer_name",
             "customer_email",
             "quantity",
@@ -81,6 +82,7 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "product_detail",
+            "user",
             "total_price",
             "created_at",
             "updated_at",
