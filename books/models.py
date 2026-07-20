@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -61,6 +62,13 @@ class Order(models.Model):
         Product,
         on_delete=models.PROTECT,
         related_name="orders",
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders",
+        blank=True,
+        null=True,
     )
     customer_name = models.CharField(max_length=120)
     customer_email = models.EmailField()

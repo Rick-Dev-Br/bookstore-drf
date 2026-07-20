@@ -1,6 +1,8 @@
 from decimal import Decimal
 
 import pytest
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
@@ -11,6 +13,21 @@ from books.views import CategoryViewSet, OrderViewSet, ProductViewSet
 @pytest.fixture
 def api_factory():
     return APIRequestFactory()
+
+
+@pytest.fixture
+def user():
+    return User.objects.create_user(
+        username="adilson",
+        email="adilson@example.com",
+        password="senha-teste",
+    )
+
+
+def token_header_for(user):
+    token = Token.objects.create(user=user)
+
+    return {"HTTP_AUTHORIZATION": f"Token {token.key}"}
 
 
 @pytest.mark.django_db
@@ -87,7 +104,17 @@ def test_product_viewset_creates_product(api_factory):
 
 
 @pytest.mark.django_db
-def test_order_viewset_creates_order(api_factory):
+def test_order_viewset_rejects_unauthenticated_user(api_factory):
+    view = OrderViewSet.as_view({"get": "list"})
+    request = api_factory.get("/api/orders/")
+
+    response = view(request)
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_order_viewset_creates_order_for_authenticated_user(api_factory, user):
     category = Category.objects.create(name="Django")
     product = Product.objects.create(
         category=category,
@@ -105,17 +132,60 @@ def test_order_viewset_creates_order(api_factory):
             "quantity": 2,
         },
         format="json",
+        **token_header_for(user),
     )
 
     response = view(request)
 
     assert response.status_code == status.HTTP_201_CREATED
+    assert response.data["user"] == user.pk
     assert response.data["total_price"] == "100.00"
-    assert Order.objects.filter(customer_email="adilson@example.com").exists()
+    assert Order.objects.filter(
+        customer_email="adilson@example.com",
+        user=user,
+    ).exists()
 
 
 @pytest.mark.django_db
-def test_order_viewset_rejects_invalid_quantity(api_factory):
+def test_order_viewset_lists_only_authenticated_user_orders(api_factory, user):
+    other_user = User.objects.create_user(
+        username="outro-usuario",
+        email="outro@example.com",
+        password="senha-teste",
+    )
+    category = Category.objects.create(name="Seguranca")
+    product = Product.objects.create(
+        category=category,
+        name="Livro de Seguranca",
+        price=Decimal("80.00"),
+        stock=5,
+    )
+    Order.objects.create(
+        product=product,
+        user=user,
+        customer_name="Adilson Henrique",
+        customer_email="adilson@example.com",
+        quantity=1,
+    )
+    Order.objects.create(
+        product=product,
+        user=other_user,
+        customer_name="Outro Cliente",
+        customer_email="outro@example.com",
+        quantity=1,
+    )
+    view = OrderViewSet.as_view({"get": "list"})
+    request = api_factory.get("/api/orders/", **token_header_for(user))
+
+    response = view(request)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["count"] == 1
+    assert response.data["results"][0]["customer_email"] == "adilson@example.com"
+
+
+@pytest.mark.django_db
+def test_order_viewset_rejects_invalid_quantity(api_factory, user):
     category = Category.objects.create(name="Testes")
     product = Product.objects.create(
         category=category,
@@ -133,6 +203,7 @@ def test_order_viewset_rejects_invalid_quantity(api_factory):
             "quantity": 0,
         },
         format="json",
+        **token_header_for(user),
     )
 
     response = view(request)

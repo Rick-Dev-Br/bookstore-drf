@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 from books.models import Book
@@ -46,3 +47,19 @@ def test_books_api_limits_results_to_page_size(client):
     assert data["next"] is not None
     assert data["previous"] is None
     assert len(data["results"]) == 5
+
+
+@pytest.mark.django_db
+def test_api_token_auth_returns_token(client):
+    User.objects.create_user(username="adilson", password="senha-teste")
+
+    response = client.post(
+        reverse("api-token-auth"),
+        {
+            "username": "adilson",
+            "password": "senha-teste",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "token" in response.json()
