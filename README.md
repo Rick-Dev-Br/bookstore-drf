@@ -10,6 +10,20 @@ poetry run python manage.py migrate
 poetry run python manage.py runserver
 ```
 
+## Como executar com Docker
+
+```powershell
+docker build -t bookstore-drf .
+docker run --rm -p 8000:8000 bookstore-drf
+```
+
+Depois acesse:
+
+```text
+http://localhost:8000/
+http://localhost:8000/api/books/
+```
+
 ## Rotas
 
 ```text
