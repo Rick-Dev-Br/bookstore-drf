@@ -24,6 +24,23 @@ http://localhost:8000/
 http://localhost:8000/api/books/
 ```
 
+## Como executar com Docker Compose e Postgres
+
+```powershell
+docker compose up --build
+```
+
+O Docker Compose sobe dois servicos:
+
+- `web`: aplicacao Django REST Framework
+- `db`: banco PostgreSQL
+
+Depois acesse:
+
+```text
+http://localhost:8000/
+```
+
 ## Rotas
 
 ```text
