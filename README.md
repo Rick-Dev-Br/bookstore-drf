@@ -34,6 +34,7 @@ O Docker Compose sobe dois servicos:
 
 - `web`: aplicacao Django REST Framework
 - `db`: banco PostgreSQL
+- `bookstore_network`: rede bridge usada pelos servicos
 
 Depois acesse:
 
