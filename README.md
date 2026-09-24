@@ -61,3 +61,9 @@ Authorization: Token seu_token
 ```powershell
 poetry run pytest
 ```
+
+## GitHub Actions
+
+O projeto possui um workflow de CI em `.github/workflows/ci.yml` que executa em pushes e pull requests.
+
+O workflow instala as dependencias com Poetry, valida o projeto Django e executa a suite de testes com `pytest`.
