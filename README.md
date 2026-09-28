@@ -67,3 +67,10 @@ poetry run pytest
 O projeto possui um workflow de CI em `.github/workflows/ci.yml` que executa em pushes e pull requests.
 
 O workflow instala as dependencias com Poetry, valida o projeto Django e executa a suite de testes com `pytest`.
+
+## Heroku
+
+O projeto esta preparado para deploy no Heroku com Gunicorn, Whitenoise, `DATABASE_URL` e Poetry.
+
+Consulte o passo a passo em `docs/heroku.md`.
+
