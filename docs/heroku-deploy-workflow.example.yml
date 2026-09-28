@@ -1,0 +1,47 @@
+name: Deploy to Heroku
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Test and deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: python -m pip install poetry==2.2.1
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.create false
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-ansi
+
+      - name: Check Django project
+        run: poetry run python manage.py check
+
+      - name: Run tests
+        run: poetry run pytest
+
+      - name: Deploy to Heroku
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+          HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+        run: |
+          if [ -z "$HEROKU_API_KEY" ] || [ -z "$HEROKU_APP_NAME" ]; then
+            echo "HEROKU_API_KEY and HEROKU_APP_NAME secrets are required."
+            exit 1
+          fi
+          git remote add heroku "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${HEROKU_APP_NAME}.git"
+          git push heroku HEAD:main
